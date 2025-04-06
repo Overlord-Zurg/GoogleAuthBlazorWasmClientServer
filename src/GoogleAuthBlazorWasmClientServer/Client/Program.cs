@@ -15,4 +15,17 @@ builder.Services.AddOidcAuthentication(options =>
     builder.Configuration.Bind("Local", options.ProviderOptions);
 });
 
+var googleClientID = "GOOGLE_CLIENT_ID_GOES_HERE";
+
+builder.Services.AddOidcAuthentication(options =>
+{
+    options.ProviderOptions.ClientId = googleClientID;
+    options.ProviderOptions.Authority = "https://accounts.google.com";
+    options.ProviderOptions.RedirectUri = "https://localhost:5001/authentication/login-callback";
+    options.ProviderOptions.ResponseType = "code";
+    options.ProviderOptions.DefaultScopes.Add("openid");
+    options.ProviderOptions.DefaultScopes.Add("profile");
+    options.ProviderOptions.DefaultScopes.Add("email");
+});
+
 await builder.Build().RunAsync();
