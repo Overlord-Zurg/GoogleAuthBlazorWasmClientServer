@@ -1,6 +1,10 @@
 ﻿@page "/weather"
 @inject HttpClient Http
 
+@using System.Net.Http.Headers
+@using Microsoft.AspNetCore.Components.WebAssembly.Authentication
+@inject IAccessTokenProvider tokenProvider
+
 <PageTitle>Weather</PageTitle>
 
 <h1>Weather</h1>
@@ -39,9 +43,23 @@ else
 @code {
     private WeatherForecast[]? forecasts;
 
+    private async Task configureAccessToken()
+    {
+        var tokenResult = await tokenProvider.RequestAccessToken();
+        if (tokenResult.TryGetToken(out var token))
+        {
+            Http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token.Value);
+        }
+        else
+        {
+            throw new InvalidOperationException("Unable to obtain access token.");
+        }
+    }
+
     protected override async Task OnInitializedAsync()
     {
-        forecasts = await Http.GetFromJsonAsync<WeatherForecast[]>("sample-data/weather.json");
+        await configureAccessToken();
+        forecasts = await Http.GetFromJsonAsync<WeatherForecast[]>("https://localhost:7064/weatherforecast");
     }
 
     public class WeatherForecast
