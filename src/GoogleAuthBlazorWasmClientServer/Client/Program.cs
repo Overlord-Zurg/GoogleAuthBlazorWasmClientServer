@@ -17,6 +17,7 @@ builder.Services.AddOidcAuthentication(options =>
     options.ProviderOptions.ClientId = googleClientID;
     options.ProviderOptions.Authority = "https://accounts.google.com";
     options.ProviderOptions.RedirectUri = "https://localhost:7135/authentication/login-callback";
+    options.ProviderOptions.PostLogoutRedirectUri = "https://localhost:7135/authentication/logout-callback";
     options.ProviderOptions.ResponseType = "id_token";
     //options.ProviderOptions.DefaultScopes.Add("openid");
     //options.ProviderOptions.DefaultScopes.Add("profile");
