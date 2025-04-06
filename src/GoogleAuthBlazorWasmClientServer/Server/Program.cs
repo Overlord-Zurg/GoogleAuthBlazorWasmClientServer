@@ -8,15 +8,6 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddCors();
 builder.Services.AddHttpContextAccessor();
 
-var app = builder.Build();
-
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
-
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultScheme = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme;
@@ -25,16 +16,24 @@ builder.Services.AddAuthentication(options =>
 .AddJwtBearer(options =>
 {
     options.Authority = "https://accounts.google.com";
-    options.Audience = "GOOGLE_CLIENT_ID_GOES_HERE";
-    options.RequireHttpsMetadata = true;
     options.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters
     {
-        ValidateIssuerSigningKey = true,
-        ValidateIssuer = false,
-        ValidateAudience = false,
+        ValidateAudience = true,
+        ValidAudience = "GOOGLE_CLIENT_ID_GOES_HERE",
         ValidateLifetime = true
     };
 });
+
+builder.Services.AddAuthorization();
+
+var app = builder.Build();
+
+// Configure the HTTP request pipeline.
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
 
 app.UseCors(c =>
 {
@@ -50,8 +49,12 @@ var summaries = new[]
     "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
 };
 
+//app.UseAuthentication();
+//app.UseAuthorization();
+
 app.MapGet("/weatherforecast", (IHttpContextAccessor accessor) =>
 {
+    var headers = accessor.HttpContext!.Request.Headers;
     var user = accessor.HttpContext!.User;
     var forecast = Enumerable.Range(1, 5).Select(index =>
         new WeatherForecast
