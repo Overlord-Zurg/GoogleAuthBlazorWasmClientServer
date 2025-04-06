@@ -17,6 +17,25 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultScheme = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme;
+})
+.AddJwtBearer(options =>
+{
+    options.Authority = "https://accounts.google.com";
+    options.Audience = "GOOGLE_CLIENT_ID_GOES_HERE";
+    options.RequireHttpsMetadata = true;
+    options.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters
+    {
+        ValidateIssuerSigningKey = true,
+        ValidateIssuer = false,
+        ValidateAudience = false,
+        ValidateLifetime = true
+    };
+});
+
 app.UseCors(c =>
 {
     c.AllowAnyHeader();
